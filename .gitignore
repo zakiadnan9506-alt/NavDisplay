@@ -1,0 +1,28 @@
+# Arduino
+*.ino.cpp
+*.ino.cpp.d
+
+# Build folders
+/build/
+/dist/
+/out/
+
+# ESP32
+sdkconfig
+sdkconfig.old
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Logs
+*.log
