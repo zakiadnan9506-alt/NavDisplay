@@ -1,29 +1,23 @@
-// Placeholder - will be filled in s#ifndef TYPES_H
+#ifndef TYPES_H
 #define TYPES_H
 
 #include <Arduino.h>
 #include "config.h"
 
-/*
-====================================================
-Command
-====================================================
-*/
+/*=====================================================
+  Connection State
+=====================================================*/
 
-enum class Command : uint8_t
+enum class ConnectionState : uint8_t
 {
-    NONE = 0,
-    NAVIGATION = 1,
-    PING = 2,
-    SETTINGS = 3,
-    BATTERY = 4
+    DISCONNECTED = 0,
+    CONNECTING,
+    CONNECTED
 };
 
-/*
-====================================================
-Direction
-====================================================
-*/
+/*=====================================================
+  Navigation Direction
+=====================================================*/
 
 enum class Direction : uint8_t
 {
@@ -31,9 +25,9 @@ enum class Direction : uint8_t
 
     STRAIGHT,
 
-    LEFT,
+    TURN_LEFT,
 
-    RIGHT,
+    TURN_RIGHT,
 
     SLIGHT_LEFT,
 
@@ -47,17 +41,31 @@ enum class Direction : uint8_t
 
     ROUNDABOUT,
 
-    ARRIVED
+    DESTINATION
 };
 
-/*
-====================================================
-BLE Packet
+/*=====================================================
+  BLE Command
+=====================================================*/
 
-Ukuran tetap
-36 Byte
-====================================================
-*/
+enum class Command : uint8_t
+{
+    NONE = 0,
+
+    NAVIGATION,
+
+    HEARTBEAT,
+
+    BATTERY,
+
+    DISPLAY,
+
+    VERSION
+};
+
+/*=====================================================
+  Navigation Packet
+=====================================================*/
 
 #pragma pack(push,1)
 
@@ -69,16 +77,14 @@ struct NavigationPacket
 
     uint16_t distance;
 
-    char road[MAX_ROAD_NAME];
+    char road[ROAD_NAME_LENGTH];
 };
 
 #pragma pack(pop)
 
-/*
-====================================================
-Navigation Runtime
-====================================================
-*/
+/*=====================================================
+  Runtime Navigation State
+=====================================================*/
 
 struct NavigationState
 {
@@ -86,11 +92,41 @@ struct NavigationState
 
     uint16_t distance;
 
-    char road[MAX_ROAD_NAME];
-
-    bool connected;
+    char road[ROAD_NAME_LENGTH];
 
     bool updated;
+
+    NavigationState()
+    {
+        direction = Direction::NONE;
+        distance = 0;
+
+        memset(road,0,sizeof(road));
+
+        updated = false;
+    }
 };
 
-#endifubsequent steps.
+/*=====================================================
+  Device State
+=====================================================*/
+
+struct DeviceState
+{
+    ConnectionState connection;
+
+    bool displayReady;
+
+    bool bleReady;
+
+    DeviceState()
+    {
+        connection = ConnectionState::DISCONNECTED;
+
+        displayReady = false;
+
+        bleReady = false;
+    }
+};
+
+#endif
