@@ -1,4 +1,80 @@
-// Placeholder - will be filled in subsequent steps.
+#include "NavigationManager.h"
+
+#include <string.h>
+
+NavigationManager Navigation;
+
+NavigationManager::NavigationManager()
+{
+    reset();
+}
+
+void NavigationManager::begin()
+{
+    reset();
+}
+
+void NavigationManager::reset()
+{
+    m_state.direction = Direction::NONE;
+
+    m_state.distance = 0;
+
+    memset(m_state.road, 0, sizeof(m_state.road));
+
+    m_state.updated = false;
+}
+
+void NavigationManager::update()
+{
+    // Cadangan untuk fitur berikutnya:
+    // - timeout data
+    // - ETA
+    // - kecepatan
+}
+
+void NavigationManager::setPacket(const NavigationPacket &packet)
+{
+    m_state.direction =
+        static_cast<Direction>(packet.direction);
+
+    m_state.distance = packet.distance;
+
+    memset(m_state.road, 0, sizeof(m_state.road));
+
+    strncpy(
+        m_state.road,
+        packet.road,
+        sizeof(m_state.road) - 1
+    );
+
+    m_state.updated = true;
+}
+
+Direction NavigationManager::getDirection() const
+{
+    return m_state.direction;
+}
+
+uint16_t NavigationManager::getDistance() const
+{
+    return m_state.distance;
+}
+
+const char* NavigationManager::getRoadName() const
+{
+    return m_state.road;
+}
+
+bool NavigationManager::hasUpdate() const
+{
+    return m_state.updated;
+}
+
+void NavigationManager::clearUpdate()
+{
+    m_state.updated = false;
+}// Placeholder - will be filled in subsequent steps.
 #include "NavigationManager.h"
 
 #include <cstring>
