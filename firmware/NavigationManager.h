@@ -1,4 +1,4 @@
-// Placeholder - will be #ifndef NAVIGATION_MANAGER_H
+#ifndef NAVIGATION_MANAGER_H
 #define NAVIGATION_MANAGER_H
 
 #include <Arduino.h>
@@ -18,15 +18,15 @@ public:
 
     void setPacket(const NavigationPacket &packet);
 
-    const NavigationState& state() const;
+    Direction getDirection() const;
+
+    uint16_t getDistance() const;
+
+    const char* getRoadName() const;
 
     bool hasUpdate() const;
 
     void clearUpdate();
-
-    void setConnected(bool connected);
-
-    bool isConnected() const;
 
 private:
 
@@ -34,6 +34,6 @@ private:
 
 };
 
-extern NavigationManager navigation;
+extern NavigationManager Navigation;
 
-#endiffilled in subsequent steps.
+#endif
