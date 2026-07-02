@@ -3,71 +3,78 @@
 
 #include <Arduino.h>
 
-/*
-=====================================================
-PROJECT
-=====================================================
-*/
+/*=====================================================
+  PROJECT
+=====================================================*/
 
-#define PROJECT_NAME           "NavDisplay"
+#define PROJECT_NAME        "NavDisplay"
 
-#define FW_MAJOR               1
-#define FW_MINOR               0
-#define FW_PATCH               0
+#define FW_VERSION_MAJOR    1
+#define FW_VERSION_MINOR    0
+#define FW_VERSION_PATCH    0
 
-/*
-=====================================================
-OLED SSD1306
-=====================================================
-*/
+/*=====================================================
+  SERIAL
+=====================================================*/
 
-#define SCREEN_WIDTH           128
-#define SCREEN_HEIGHT          64
+#define SERIAL_BAUDRATE     115200
 
-#define OLED_ADDRESS           0x3C
+/*=====================================================
+  OLED SSD1306
+=====================================================*/
 
-// ESP32-C3 SuperMini
-#define OLED_SDA               8
-#define OLED_SCL               9
+#define SCREEN_WIDTH        128
+#define SCREEN_HEIGHT       64
+
+#define OLED_I2C_ADDRESS    0x3C
 
 /*
-=====================================================
-BLE
-=====================================================
-*/
+ * ESP32-C3 SuperMini
+ *
+ * Jika OLED tidak tampil,
+ * ubah pin berikut sesuai board Anda.
+ */
+#ifndef OLED_SDA_PIN
+#define OLED_SDA_PIN        8
+#endif
 
-#define BLE_DEVICE_NAME        "NavDisplay"
+#ifndef OLED_SCL_PIN
+#define OLED_SCL_PIN        9
+#endif
 
-#define BLE_SERVICE_UUID       "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+/*=====================================================
+  DISPLAY
+=====================================================*/
 
-#define BLE_RX_UUID            "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+#define DISPLAY_REFRESH_MS  40
 
-#define BLE_TX_UUID            "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+/*=====================================================
+  BLE
+=====================================================*/
 
-/*
-=====================================================
-DISPLAY
-=====================================================
-*/
+#define BLE_DEVICE_NAME     "NavDisplay"
 
-#define DISPLAY_FPS            25
+#define BLE_SERVICE_UUID \
+"4FAFC201-1FB5-459E-8FCC-C5C9C331914B"
 
-#define DISPLAY_REFRESH_MS     40
+#define BLE_CHARACTERISTIC_RX \
+"BEB5483E-36E1-4688-B7F5-EA07361B26A8"
 
-/*
-=====================================================
-NAVIGATION
-=====================================================
-*/
+#define BLE_CHARACTERISTIC_TX \
+"7E6A9F55-8D42-4D39-8B74-74A6C1F4C901"
 
-#define MAX_ROAD_NAME          32
+/*=====================================================
+  NAVIGATION
+=====================================================*/
 
-/*
-=====================================================
-SERIAL
-=====================================================
-*/
+#define ROAD_NAME_LENGTH    48
 
-#define SERIAL_BAUDRATE        115200
+#define DISTANCE_MAX        9999
 
-#endif// Placeholder - will be filled in subsequent steps.
+/*=====================================================
+  APPLICATION
+=====================================================*/
+
+#define SPLASH_TIMEOUT_MS   1500
+
+#endif
