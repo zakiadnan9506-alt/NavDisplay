@@ -1,4 +1,15 @@
+/**************************************************************************
+ *
+ *  NavDisplay Firmware v1.0
+ *
+ *  File        : display.cpp
+ *  Description : OLED Display Module
+ *
+ **************************************************************************/
+
 #include "display.h"
+
+#include "navigation.h"
 
 //
 // =====================================================
@@ -21,9 +32,17 @@ Adafruit_SSD1306 display(
 
 bool displayBegin()
 {
-    Wire.begin(OLED_SDA_PIN, OLED_SCL_PIN);
+    Wire.begin(
+        OLED_SDA_PIN,
+        OLED_SCL_PIN
+    );
 
-    if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR))
+    bool ok = display.begin(
+        SSD1306_SWITCHCAPVCC,
+        OLED_I2C_ADDR
+    );
+
+    if (!ok)
     {
         systemStatus.displayReady = false;
         return false;
@@ -36,6 +55,8 @@ bool displayBegin()
     display.setTextColor(SSD1306_WHITE);
 
     display.setTextWrap(false);
+
+    display.cp437(true);
 
     display.display();
 
@@ -50,7 +71,7 @@ bool displayBegin()
 
 //
 // =====================================================
-// BASIC FUNCTIONS
+// BASIC DISPLAY
 // =====================================================
 //
 
@@ -76,13 +97,28 @@ void drawSplashScreen()
 
     display.setTextSize(2);
 
-    drawCenteredText(12, FW_NAME);
+    drawCenteredText(
+        8,
+        FW_NAME,
+        2
+    );
 
     display.setTextSize(1);
 
-    drawCenteredText(40, "Firmware");
+    drawCenteredText(
+        34,
+        "Navigation Display"
+    );
 
-    drawCenteredText(54, FW_VERSION);
+    drawCenteredText(
+        48,
+        "Firmware"
+    );
+
+    drawCenteredText(
+        58,
+        FW_VERSION
+    );
 
     display.display();
 }
@@ -97,9 +133,15 @@ void drawBootScreen()
 {
     display.clearDisplay();
 
-    drawCenteredText(20, "BOOTING");
+    drawCenteredText(
+        20,
+        "Initializing..."
+    );
 
-    drawCenteredText(40, "Please Wait...");
+    drawCenteredText(
+        40,
+        "Please Wait"
+    );
 
     display.display();
 }
@@ -116,9 +158,15 @@ void drawIdleScreen()
 
     drawStatusBar();
 
-    drawCenteredText(24, "NAV DISPLAY");
+    drawCenteredText(
+        22,
+        "NavDisplay"
+    );
 
-    drawCenteredText(44, "Waiting Navigation");
+    drawCenteredText(
+        40,
+        "Waiting Navigation"
+    );
 
     display.display();
 }
@@ -135,9 +183,15 @@ void drawBLEWaitingScreen()
 
     drawStatusBar();
 
-    drawCenteredText(20, "BLE");
+    drawCenteredText(
+        22,
+        "Bluetooth"
+    );
 
-    drawCenteredText(40, "Waiting...");
+    drawCenteredText(
+        40,
+        "Waiting Device..."
+    );
 
     display.display();
 }
@@ -154,16 +208,22 @@ void drawBLEConnectedScreen()
 
     drawStatusBar();
 
-    drawCenteredText(20, "BLE Connected");
+    drawCenteredText(
+        22,
+        "Bluetooth"
 
-    drawCenteredText(40, "Ready");
+    );
+
+    drawCenteredText(
+        40,
+        "Connected"
+    );
 
     display.display();
 }
-
 //
 // =====================================================
-// NO GPS
+// NO GPS SCREEN
 // =====================================================
 //
 
@@ -173,9 +233,15 @@ void drawNoGPSScreen()
 
     drawStatusBar();
 
-    drawCenteredText(24, "NO GPS");
+    drawCenteredText(
+        22,
+        "GPS"
+    );
 
-    drawCenteredText(44, "Waiting Signal");
+    drawCenteredText(
+        40,
+        "Waiting Signal..."
+    );
 
     display.display();
 }
@@ -192,19 +258,55 @@ void drawNavigationScreen()
 
     drawStatusBar();
 
+    //
+    // Turn Icon
+    //
+    drawTurnIcon(
+        navigationTurn(),
+        4,
+        16
+    );
+
+    //
+    // Distance
+    //
+    display.setTextColor(SSD1306_WHITE);
     display.setTextSize(2);
 
-    display.setCursor(8, 18);
-    display.print(navData.distance);
+    display.setCursor(40, 18);
+    display.print(navigationDistance());
+    display.print("m");
 
+    //
+    // Road Name
+    //
     display.setTextSize(1);
 
-    display.print(" m");
+    display.setCursor(0, 44);
 
-    display.setCursor(8, 44);
-    display.print(navData.roadName);
+    String road = navigationRoad();
 
-    drawTurnIcon(navData.turn, 96, 20);
+    if (road.length() > 21)
+    {
+        road = road.substring(0, 21);
+    }
+
+    display.print(road);
+
+    //
+    // ETA
+    //
+    display.setCursor(0, 56);
+    display.print("ETA ");
+    display.print(navigationETA());
+    display.print("m");
+
+    //
+    // Speed
+    //
+    display.setCursor(74, 56);
+    display.print(navigationSpeed());
+    display.print("km/h");
 
     display.display();
 }
@@ -219,48 +321,78 @@ void drawStatusBar()
 {
     display.drawLine(
         0,
-        10,
+        11,
         SCREEN_WIDTH,
-        10,
+        11,
         SSD1306_WHITE
     );
 
+    //
+    // BLE
+    //
     display.setTextSize(1);
-
-    display.setCursor(0, 0);
+    display.setCursor(0, 1);
 
     if (systemStatus.bleConnected)
+    {
         display.print("BLE");
+    }
     else
+    {
         display.print("---");
+    }
 
-    display.setCursor(46, 0);
+    //
+    // GPS
+    //
+    display.setCursor(48, 1);
 
-    if (navData.gpsValid)
+    if (navigationHasGPS())
+    {
         display.print("GPS");
+    }
     else
+    {
         display.print("---");
+    }
 
-    display.setCursor(94, 0);
+    //
+    // Battery
+    //
+    display.setCursor(92, 1);
 
-    display.print(batteryStatus.percent);
-
-    display.print("%");
+    display.print("BAT");
 }
 
 //
 // =====================================================
-// CENTERED TEXT
+// TITLE
+// =====================================================
+//
+
+void drawTitle(const String &title)
+{
+    display.setTextSize(1);
+
+    drawCenteredText(
+        0,
+        title
+    );
+}
+
+//
+// =====================================================
+// CENTER TEXT
 // =====================================================
 //
 
 void drawCenteredText(
-    int16_t y,
-    const String& text,
-    uint8_t textSize
+    int y,
+    const String &text,
+    uint8_t size
 )
 {
-    display.setTextSize(textSize);
+    display.setTextSize(size);
 
     int16_t x1;
     int16_t y1;
@@ -280,102 +412,15 @@ void drawCenteredText(
 
     int16_t x = (SCREEN_WIDTH - w) / 2;
 
-    display.setCursor(x, y);
+    if (x < 0)
+    {
+        x = 0;
+    }
 
-    display.print(text);
-}
-
-//
-// =====================================================
-// TITLE
-// =====================================================
-//
-
-void drawTitle(const String& title)
-{
-    display.setTextSize(1);
-
-    drawCenteredText(0, title);
-}
-
-//
-// =====================================================
-// TURN ICON
-// =====================================================
-//
-
-void drawTurnIcon(
-    TurnType turn,
-    int16_t x,
-    int16_t y
-)
-{
-    display.drawRect(
+    display.setCursor(
         x,
-        y,
-        24,
-        24,
-        SSD1306_WHITE
+        y
     );
 
-    display.setCursor(x + 8, y + 8);
-
-    switch (turn)
-    {
-        case TurnType::LEFT:
-            display.print("<");
-            break;
-
-        case TurnType::RIGHT:
-            display.print(">");
-            break;
-
-        case TurnType::STRAIGHT:
-            display.print("^");
-            break;
-
-        case TurnType::UTURN_LEFT:
-            display.print("U");
-            break;
-
-        case TurnType::UTURN_RIGHT:
-            display.print("U");
-            break;
-
-        default:
-            display.print("?");
-            break;
-    }
-}
-
-//
-// =====================================================
-// UPDATE DISPLAY
-// =====================================================
-//
-
-void updateDisplay()
-{
-    if (!systemStatus.displayReady)
-        return;
-
-    if (!systemStatus.bleConnected)
-    {
-        drawBLEWaitingScreen();
-        return;
-    }
-
-    if (!navData.active)
-    {
-        drawBLEConnectedScreen();
-        return;
-    }
-
-    if (!navData.gpsValid)
-    {
-        drawNoGPSScreen();
-        return;
-    }
-
-    drawNavigationScreen();
+    display.print(text);
 }
