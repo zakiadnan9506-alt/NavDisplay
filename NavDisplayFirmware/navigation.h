@@ -22,6 +22,8 @@ void navigationBegin();
 
 void navigationLoop();
 
+void navigationUpdate();
+
 //
 // =====================================================
 // CONTROL
@@ -32,7 +34,7 @@ void navigationStart();
 
 void navigationStop();
 
-void navigationUpdate();
+void navigationRefresh();
 
 //
 // =====================================================
@@ -46,11 +48,15 @@ bool navigationHasGPS();
 
 bool navigationDataValid();
 
+bool navigationTimedOut();
+
 //
 // =====================================================
-// GETTERS
+// INFORMATION
 // =====================================================
 //
+
+unsigned long navigationAge();
 
 uint32_t navigationDistance();
 
