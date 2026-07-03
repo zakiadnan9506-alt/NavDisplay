@@ -5,9 +5,9 @@
 #include <NimBLEDevice.h>
 
 //
-// ==========================================================
-// BLE STATUS
-// ==========================================================
+// =====================================================
+// ENUM
+// =====================================================
 //
 
 enum class BLEState : uint8_t
@@ -17,24 +17,19 @@ enum class BLEState : uint8_t
     CONNECTED
 };
 
-//
-// ==========================================================
-// NAVIGATION TURN TYPE
-// ==========================================================
-//
-
 enum class TurnType : uint8_t
 {
     NONE = 0,
 
     STRAIGHT,
 
-    SLIGHT_LEFT,
     LEFT,
-    SHARP_LEFT,
-
-    SLIGHT_RIGHT,
     RIGHT,
+
+    SLIGHT_LEFT,
+    SLIGHT_RIGHT,
+
+    SHARP_LEFT,
     SHARP_RIGHT,
 
     UTURN_LEFT,
@@ -48,65 +43,66 @@ enum class TurnType : uint8_t
 };
 
 //
-// ==========================================================
+// =====================================================
 // NAVIGATION DATA
-// ==========================================================
+// =====================================================
 //
 
 struct NavigationData
 {
-    String roadName;
+    bool active;
 
     TurnType turn;
 
-    uint32_t distanceMeters;
+    String roadName;
 
-    uint16_t speedKmh;
+    uint32_t distance;
 
-    uint16_t etaMinutes;
+    uint16_t speed;
 
-    bool gpsAvailable;
-    bool navigating;
+    uint16_t eta;
+
+    bool gpsValid;
+
+    uint32_t lastUpdate;
 };
 
 //
-// ==========================================================
+// =====================================================
 // SYSTEM STATUS
-// ==========================================================
+// =====================================================
 //
 
 struct SystemStatus
 {
     BLEState bleState;
 
-    bool displayReady;
-
-    bool oledFound;
-
     bool bleConnected;
 
-    bool newNavigationData;
+    bool displayReady;
+
+    bool newData;
 };
 
 //
-// ==========================================================
-// BATTERY STATUS
-// ==========================================================
+// =====================================================
+// BATTERY
+// =====================================================
 //
 
 struct BatteryStatus
 {
     float voltage;
 
-    uint8_t percentage;
+    uint8_t percent;
 
     bool charging;
 };
 
 //
-// ==========================================================
+// =====================================================
 // GLOBAL VARIABLES
-// ==========================================================
+// =====================================================
 //
 
 extern NavigationData navData;
@@ -116,9 +112,9 @@ extern SystemStatus systemStatus;
 extern BatteryStatus batteryStatus;
 
 //
-// ==========================================================
+// =====================================================
 // BLE OBJECTS
-// ==========================================================
+// =====================================================
 //
 
 extern NimBLEServer* bleServer;
@@ -130,24 +126,25 @@ extern NimBLECharacteristic* bleRxCharacteristic;
 extern NimBLECharacteristic* bleTxCharacteristic;
 
 //
-// ==========================================================
+// =====================================================
 // TIMERS
-// ==========================================================
+// =====================================================
 //
 
-extern uint32_t lastDisplayUpdate;
+extern unsigned long lastDisplayRefresh;
 
-extern uint32_t lastBLEActivity;
+extern unsigned long lastBLEActivity;
 
-extern uint32_t lastBatteryUpdate;
+extern unsigned long lastBatteryRead;
 
 //
-// ==========================================================
+// =====================================================
 // FUNCTION PROTOTYPES
-// ==========================================================
+// =====================================================
 //
 
 void resetNavigationData();
+
 void resetSystemStatus();
 
 #endif
