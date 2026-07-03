@@ -11,21 +11,25 @@
 // =====================================================
 //
 
-// Parse seluruh paket data BLE
+// Parse paket data BLE
 void parseNavigationData(const String &data);
+
+//
+// =====================================================
+// TURN TYPE
+// =====================================================
+//
+
+TurnType parseTurnType(const String &turn);
+
+String turnTypeToString(TurnType turn);
 
 //
 // =====================================================
 // UTILITIES
 // =====================================================
+//
 
-// Mengubah string menjadi TurnType
-TurnType parseTurnType(const String &turn);
-
-// Mengubah TurnType menjadi string
-String turnTypeToString(TurnType turn);
-
-// Mengosongkan data navigasi
 void clearNavigation();
 
 #endif
