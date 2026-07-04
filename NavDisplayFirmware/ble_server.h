@@ -2,59 +2,63 @@
 #define BLE_SERVER_H
 
 #include <Arduino.h>
+
 #include <NimBLEDevice.h>
 
 #include "config.h"
-#include "globals.h"
 
 //
-// =====================================================
-// BLE CALLBACKS
-// =====================================================
+// ==========================================================
+// INITIALIZATION
+// ==========================================================
+//
+
+bool bleBegin();
+
+//
+// ==========================================================
+// UPDATE
+// ==========================================================
+//
+
+void bleUpdate();
+
+//
+// ==========================================================
+// STATUS
+// ==========================================================
+//
+
+bool bleIsConnected();
+
+//
+// ==========================================================
+// SEND
+// ==========================================================
+//
+
+void bleSend(const String &text);
+
+//
+// ==========================================================
+// CALLBACKS
+// ==========================================================
 //
 
 class ServerCallbacks : public NimBLEServerCallbacks
 {
 public:
 
-    void onConnect(
-        NimBLEServer* pServer,
-        NimBLEConnInfo& connInfo
-    ) override;
+    void onConnect(NimBLEServer *server) override;
 
-    void onDisconnect(
-        NimBLEServer* pServer,
-        NimBLEConnInfo& connInfo,
-        int reason
-    ) override;
+    void onDisconnect(NimBLEServer *server) override;
 };
 
 class RXCallbacks : public NimBLECharacteristicCallbacks
 {
 public:
 
-    void onWrite(
-        NimBLECharacteristic* pCharacteristic,
-        NimBLEConnInfo& connInfo
-    ) override;
+    void onWrite(NimBLECharacteristic *characteristic) override;
 };
-
-//
-// =====================================================
-// BLE FUNCTIONS
-// =====================================================
-//
-
-bool bleBegin();
-
-void bleStartAdvertising();
-
-void bleStopAdvertising();
-
-bool bleIsConnected();
-
-void bleSend(const String& message);
-
-void bleLoop();
 
 #endif
