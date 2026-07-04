@@ -9,122 +9,100 @@
 
 #include "config.h"
 #include "globals.h"
-#include "navigation.h"
 
 //
-// =====================================================
-// OLED OBJECT
-// =====================================================
+// ==========================================================
+// DISPLAY OBJECT
+// ==========================================================
 //
 
 extern Adafruit_SSD1306 display;
 
 //
-// =====================================================
+// ==========================================================
+// DISPLAY STATE
+// ==========================================================
+//
+
+enum class DisplayState : uint8_t
+{
+    BOOT = 0,
+
+    WAIT_BLE,
+
+    CONNECTED,
+
+    WAIT_GPS,
+
+    NAVIGATION,
+
+    IDLE
+};
+
+//
+// ==========================================================
 // INITIALIZATION
-// =====================================================
+// ==========================================================
 //
 
 bool displayBegin();
 
 //
-// =====================================================
-// BASIC FUNCTIONS
-// =====================================================
+// ==========================================================
+// UPDATE
+// ==========================================================
 //
 
-void displayClear();
-
-void displayUpdate();
+void updateDisplay();
 
 //
-// =====================================================
-// SCREEN FUNCTIONS
-// =====================================================
+// ==========================================================
+// STATE
+// ==========================================================
 //
 
-void drawSplashScreen();
+void displaySetState(DisplayState state);
+
+DisplayState displayGetState();
+
+//
+// ==========================================================
+// SCREENS
+// ==========================================================
+//
 
 void drawBootScreen();
 
+void drawWaitingBLE();
+
+void drawConnected();
+
+void drawWaitingGPS();
+
+void drawNavigation();
+
 void drawIdleScreen();
 
-void drawBLEWaitingScreen();
-
-void drawBLEConnectedScreen();
-
-void drawNavigationScreen();
-
-void drawNoGPSScreen();
-
 //
-// =====================================================
-// STATUS BAR
-// =====================================================
+// ==========================================================
+// HELPERS
+// ==========================================================
 //
 
 void drawStatusBar();
 
-//
-// =====================================================
-// TEXT HELPERS
-// =====================================================
-//
-
 void drawCenteredText(
     int16_t y,
-    const String& text,
-    uint8_t textSize = 1
+    const String &text,
+    uint8_t size = 1
 );
 
 void drawTitle(
-    const String& title
+    const String &title
 );
 
-//
-// =====================================================
-// ICON HELPERS
-// =====================================================
-//
+void displayClear();
 
-void drawTurnIcon(
-    TurnType turn,
-    int16_t x,
-    int16_t y
-);
-
-void drawBLEIcon(
-    int16_t x,
-    int16_t y
-);
-
-void drawGPSIcon(
-    int16_t x,
-    int16_t y
-);
-
-void drawBatteryIcon(
-    int16_t x,
-    int16_t y,
-    uint8_t percent
-);
-
-//
-// =====================================================
-// DRAW HELPERS
-// =====================================================
-//
-
-void drawHorizontalSeparator(
-    int16_t y
-);
-
-//
-// =====================================================
-// UPDATE
-// =====================================================
-//
-
-void updateDisplay();
+void displayRefresh();
 
 #endif
