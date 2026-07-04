@@ -1,72 +1,150 @@
+/**************************************************************************
+ *
+ *  NavDisplay Firmware v1.0
+ *
+ *  File        : navigation.cpp
+ *  Description : Navigation Manager
+ *
+ **************************************************************************/
+
 #include "navigation.h"
 
 //
-// =====================================================
+// ==========================================================
 // INITIALIZATION
-// =====================================================
+// ==========================================================
 //
 
 void navigationBegin()
 {
-    resetNavigationData();
+    navigationReset();
+
+    systemStatus.navigationReady = true;
 }
 
 //
-// =====================================================
-// LOOP
-// =====================================================
-//
-
-void navigationLoop()
-{
-    navigationUpdate();
-}
-
-//
-// =====================================================
+// ==========================================================
 // UPDATE
-// =====================================================
+// ==========================================================
 //
 
 void navigationUpdate()
 {
-    if (!navigationActive())
+    if (!systemStatus.navigationReady)
     {
         return;
     }
 
-    if (navigationTimedOut())
+    // Timeout navigation apabila tidak ada data baru
+    if (navData.active)
     {
-        navigationStop();
+        if ((millis() - navData.lastUpdate) > GPS_TIMEOUT_MS)
+        {
+            navigationReset();
+        }
     }
 }
 
 //
-// =====================================================
-// CONTROL
-// =====================================================
+// ==========================================================
+// RESET
+// ==========================================================
 //
 
-void navigationStart()
+void navigationReset()
 {
-    navData.active = true;
+    navData.active = false;
+
+    navData.hasGPS = false;
+
+    navData.turn = TurnType::NONE;
+
+    navData.road = "";
+
+    navData.distance = 0;
+
+    navData.eta = 0;
+
+    navData.speed = 0;
+
     navData.lastUpdate = millis();
 }
 
-void navigationStop()
-{
-    resetNavigationData();
-}
+//
+// ==========================================================
+// INTERNAL
+// ==========================================================
+//
 
-void navigationRefresh()
+void navigationTouch()
 {
     navData.lastUpdate = millis();
 }
 
 //
-// =====================================================
-// STATUS
-// =====================================================
+// ==========================================================
+// SETTERS
+// ==========================================================
+//
+
+void navigationSetActive(bool active)
+{
+    navData.active = active;
+
+    navigationTouch();
+}
+
+void navigationSetGPS(bool gps)
+{
+    navData.hasGPS = gps;
+
+    navigationTouch();
+}
+
+void navigationSetTurn(TurnType turn)
+{
+    navData.turn = turn;
+
+    navigationTouch();
+}
+
+void navigationSetRoad(const String &road)
+{
+    navData.road = road;
+
+    if (navData.road.length() > MAX_ROAD_LENGTH)
+    {
+        navData.road.remove(MAX_ROAD_LENGTH);
+    }
+
+    navigationTouch();
+}
+
+void navigationSetDistance(uint32_t distance)
+{
+    navData.distance = distance;
+
+    navigationTouch();
+}
+
+void navigationSetETA(uint16_t eta)
+{
+    navData.eta = eta;
+
+    navigationTouch();
+}
+
+void navigationSetSpeed(uint16_t speed)
+{
+    navData.speed = speed;
+
+    navigationTouch();
+}
+
+//
+// ==========================================================
+// GETTERS
+// ==========================================================
 //
 
 bool navigationActive()
@@ -76,28 +154,17 @@ bool navigationActive()
 
 bool navigationHasGPS()
 {
-    return navData.gpsValid;
+    return navData.hasGPS;
 }
 
-bool navigationDataValid()
+TurnType navigationTurn()
 {
-    return navigationActive() && navigationHasGPS();
+    return navData.turn;
 }
 
-bool navigationTimedOut()
+String navigationRoad()
 {
-    return navigationAge() > GPS_TIMEOUT_MS;
-}
-
-//
-// =====================================================
-// INFORMATION
-// =====================================================
-//
-
-unsigned long navigationAge()
-{
-    return millis() - navData.lastUpdate;
+    return navData.road;
 }
 
 uint32_t navigationDistance()
@@ -105,22 +172,12 @@ uint32_t navigationDistance()
     return navData.distance;
 }
 
-uint16_t navigationSpeed()
-{
-    return navData.speed;
-}
-
 uint16_t navigationETA()
 {
     return navData.eta;
 }
 
-String navigationRoad()
+uint16_t navigationSpeed()
 {
-    return navData.roadName;
-}
-
-TurnType navigationTurn()
-{
-    return navData.turn;
+    return navData.speed;
 }
