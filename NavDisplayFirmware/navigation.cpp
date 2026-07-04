@@ -59,7 +59,7 @@ void navigationReset()
 
     navData.turn = TurnType::NONE;
 
-    navData.road = "";
+    navData.road.clear();
 
     navData.distance = 0;
 
@@ -162,7 +162,7 @@ TurnType navigationTurn()
     return navData.turn;
 }
 
-String navigationRoad()
+const String& navigationRoad()
 {
     return navData.road;
 }
