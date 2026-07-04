@@ -120,9 +120,9 @@ void navigationSetRoad(const String &road)
     navigationTouch();
 }
 
-void navigationSetDistance(uint32_t distance)
+void navigationSetDistance(uint32_t meter)
 {
-    navData.distance = distance;
+    navData.distance = meter;
 
     navigationTouch();
 }
