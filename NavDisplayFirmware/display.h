@@ -9,6 +9,7 @@
 
 #include "config.h"
 #include "globals.h"
+#include "navigation.h"
 
 //
 // =====================================================
@@ -89,6 +90,32 @@ void drawTitle(
 void drawTurnIcon(
     TurnType turn,
     int16_t x,
+    int16_t y
+);
+
+void drawBLEIcon(
+    int16_t x,
+    int16_t y
+);
+
+void drawGPSIcon(
+    int16_t x,
+    int16_t y
+);
+
+void drawBatteryIcon(
+    int16_t x,
+    int16_t y,
+    uint8_t percent
+);
+
+//
+// =====================================================
+// DRAW HELPERS
+// =====================================================
+//
+
+void drawHorizontalSeparator(
     int16_t y
 );
 
