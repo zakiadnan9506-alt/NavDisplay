@@ -36,33 +36,36 @@ void navigationReset();
 // ==========================================================
 //
 
+void navigationBegin();
+
+void navigationUpdate();
+
+void navigationReset();
+
 void navigationSetActive(bool active);
 
 void navigationSetGPS(bool gps);
 
-void navigationSetTurn(TurnType turn);
-
 void navigationSetRoad(const String &road);
 
-void navigationSetDistance(uint32_t distance);
+void navigationSetDistance(uint32_t meter);
 
-void navigationSetETA(uint16_t eta);
+void navigationSetETA(uint16_t minute);
 
-void navigationSetSpeed(uint16_t speed);
+void navigationSetSpeed(uint16_t kmh);
+
+void navigationSetTurn(TurnType turn);
 
 //
 // ==========================================================
 // GETTERS
 // ==========================================================
 //
-
 bool navigationActive();
 
-bool navigationHasGPS();
+bool navigationGPS();
 
-TurnType navigationTurn();
-
-String navigationRoad();
+const String& navigationRoad();
 
 uint32_t navigationDistance();
 
@@ -70,6 +73,7 @@ uint16_t navigationETA();
 
 uint16_t navigationSpeed();
 
+TurnType navigationTurn();
 //
 // ==========================================================
 // INTERNAL
