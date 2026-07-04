@@ -36,12 +36,6 @@ void navigationReset();
 // ==========================================================
 //
 
-void navigationBegin();
-
-void navigationUpdate();
-
-void navigationReset();
-
 void navigationSetActive(bool active);
 
 void navigationSetGPS(bool gps);
