@@ -1,20 +1,22 @@
 /**************************************************************************
  *
- *  NavDisplay Firmware v1.0
+ * NavDisplay Firmware v1.0
  *
- *  File        : display.cpp
- *  Description : OLED Display Module
+ * File : display.cpp
  *
  **************************************************************************/
 
 #include "display.h"
 
+#include "battery.h"
 #include "navigation.h"
+#include "utils.h"
+#include "icons.h"
 
 //
-// =====================================================
+// ==========================================================
 // OLED OBJECT
-// =====================================================
+// ==========================================================
 //
 
 Adafruit_SSD1306 display(
@@ -25,26 +27,27 @@ Adafruit_SSD1306 display(
 );
 
 //
-// =====================================================
-// DISPLAY INITIALIZATION
-// =====================================================
+// ==========================================================
+// DISPLAY STATE
+// ==========================================================
+//
+
+static DisplayState currentState = DisplayState::BOOT;
+
+//
+// ==========================================================
+// INITIALIZATION
+// ==========================================================
 //
 
 bool displayBegin()
 {
-    Wire.begin(
-        OLED_SDA_PIN,
-        OLED_SCL_PIN
-    );
+    Wire.begin(OLED_SDA_PIN, OLED_SCL_PIN);
 
-    bool ok = display.begin(
-        SSD1306_SWITCHCAPVCC,
-        OLED_I2C_ADDR
-    );
-
-    if (!ok)
+    if (!display.begin(
+            SSD1306_SWITCHCAPVCC,
+            OLED_I2C_ADDR))
     {
-        systemStatus.displayReady = false;
         return false;
     }
 
@@ -56,23 +59,35 @@ bool displayBegin()
 
     display.setTextWrap(false);
 
-    display.cp437(true);
-
     display.display();
 
     systemStatus.displayReady = true;
 
-    drawSplashScreen();
-
-    delay(1500);
+    currentState = DisplayState::BOOT;
 
     return true;
 }
 
 //
-// =====================================================
-// BASIC DISPLAY
-// =====================================================
+// ==========================================================
+// DISPLAY STATE
+// ==========================================================
+//
+
+void displaySetState(DisplayState state)
+{
+    currentState = state;
+}
+
+DisplayState displayGetState()
+{
+    return currentState;
+}
+
+//
+// ==========================================================
+// BASIC
+// ==========================================================
 //
 
 void displayClear()
@@ -80,317 +95,44 @@ void displayClear()
     display.clearDisplay();
 }
 
-void displayUpdate()
+void displayRefresh()
 {
     display.display();
 }
 
 //
-// =====================================================
-// SPLASH SCREEN
-// =====================================================
-//
-
-void drawSplashScreen()
-{
-    display.clearDisplay();
-
-    display.setTextSize(2);
-
-    drawCenteredText(
-        8,
-        FW_NAME,
-        2
-    );
-
-    display.setTextSize(1);
-
-    drawCenteredText(
-        34,
-        "Navigation Display"
-    );
-
-    drawCenteredText(
-        48,
-        "Firmware"
-    );
-
-    drawCenteredText(
-        58,
-        FW_VERSION
-    );
-
-    display.display();
-}
-
-//
-// =====================================================
-// BOOT SCREEN
-// =====================================================
-//
-
-void drawBootScreen()
-{
-    display.clearDisplay();
-
-    drawCenteredText(
-        20,
-        "Initializing..."
-    );
-
-    drawCenteredText(
-        40,
-        "Please Wait"
-    );
-
-    display.display();
-}
-
-//
-// =====================================================
-// IDLE SCREEN
-// =====================================================
-//
-
-void drawIdleScreen()
-{
-    display.clearDisplay();
-
-    drawStatusBar();
-
-    drawCenteredText(
-        22,
-        "NavDisplay"
-    );
-
-    drawCenteredText(
-        40,
-        "Waiting Navigation"
-    );
-
-    display.display();
-}
-
-//
-// =====================================================
-// BLE WAITING
-// =====================================================
-//
-
-void drawBLEWaitingScreen()
-{
-    display.clearDisplay();
-
-    drawStatusBar();
-
-    drawCenteredText(
-        22,
-        "Bluetooth"
-    );
-
-    drawCenteredText(
-        40,
-        "Waiting Device..."
-    );
-
-    display.display();
-}
-
-//
-// =====================================================
-// BLE CONNECTED
-// =====================================================
-//
-
-void drawBLEConnectedScreen()
-{
-    display.clearDisplay();
-
-    drawStatusBar();
-
-    drawCenteredText(
-        22,
-        "Bluetooth"
-
-    );
-
-    drawCenteredText(
-        40,
-        "Connected"
-    );
-
-    display.display();
-}
-//
-// =====================================================
-// NO GPS SCREEN
-// =====================================================
-//
-
-void drawNoGPSScreen()
-{
-    display.clearDisplay();
-
-    drawStatusBar();
-
-    drawCenteredText(
-        22,
-        "GPS"
-    );
-
-    drawCenteredText(
-        40,
-        "Waiting Signal..."
-    );
-
-    display.display();
-}
-
-//
-// =====================================================
-// NAVIGATION SCREEN
-// =====================================================
-//
-
-void drawNavigationScreen()
-{
-    display.clearDisplay();
-
-    drawStatusBar();
-
-    //
-    // Turn Icon
-    //
-    drawTurnIcon(
-        navigationTurn(),
-        4,
-        16
-    );
-
-    //
-    // Distance
-    //
-    display.setTextColor(SSD1306_WHITE);
-    display.setTextSize(2);
-
-    display.setCursor(40, 18);
-    display.print(navigationDistance());
-    display.print("m");
-
-    //
-    // Road Name
-    //
-    display.setTextSize(1);
-
-    display.setCursor(0, 44);
-
-    String road = navigationRoad();
-
-    if (road.length() > 21)
-    {
-        road = road.substring(0, 21);
-    }
-
-    display.print(road);
-
-    //
-    // ETA
-    //
-    display.setCursor(0, 56);
-    display.print("ETA ");
-    display.print(navigationETA());
-    display.print("m");
-
-    //
-    // Speed
-    //
-    display.setCursor(74, 56);
-    display.print(navigationSpeed());
-    display.print("km/h");
-
-    display.display();
-}
-
-//
-// =====================================================
-// STATUS BAR
-// =====================================================
-//
-
-void drawStatusBar()
-{
-    display.drawLine(
-        0,
-        11,
-        SCREEN_WIDTH,
-        11,
-        SSD1306_WHITE
-    );
-
-    //
-    // BLE
-    //
-    display.setTextSize(1);
-    display.setCursor(0, 1);
-
-    if (systemStatus.bleConnected)
-    {
-        display.print("BLE");
-    }
-    else
-    {
-        display.print("---");
-    }
-
-    //
-    // GPS
-    //
-    display.setCursor(48, 1);
-
-    if (navigationHasGPS())
-    {
-        display.print("GPS");
-    }
-    else
-    {
-        display.print("---");
-    }
-
-    //
-    // Battery
-    //
-    display.setCursor(92, 1);
-
-    display.print("BAT");
-}
-
-//
-// =====================================================
+// ==========================================================
 // TITLE
-// =====================================================
+// ==========================================================
 //
 
 void drawTitle(const String &title)
 {
     display.setTextSize(1);
 
-    drawCenteredText(
+    display.setCursor(0,0);
+
+    display.print(title);
+
+    display.drawLine(
         0,
-        title
+        10,
+        SCREEN_WIDTH-1,
+        10,
+        SSD1306_WHITE
     );
 }
 
 //
-// =====================================================
+// ==========================================================
 // CENTER TEXT
-// =====================================================
+// ==========================================================
 //
 
 void drawCenteredText(
-    int y,
+    int16_t y,
     const String &text,
-    uint8_t size
-)
+    uint8_t size)
 {
     display.setTextSize(size);
 
@@ -410,17 +152,86 @@ void drawCenteredText(
         &h
     );
 
-    int16_t x = (SCREEN_WIDTH - w) / 2;
+    int16_t x =
+        (SCREEN_WIDTH - w) / 2;
 
-    if (x < 0)
-    {
-        x = 0;
-    }
-
-    display.setCursor(
-        x,
-        y
-    );
+    display.setCursor(x,y);
 
     display.print(text);
+}
+//
+// ==========================================================
+// BOOT SCREEN
+// ==========================================================
+//
+
+void drawBootScreen()
+{
+    displayClear();
+
+    drawCenteredText(10, FW_NAME, 2);
+
+    drawCenteredText(34, FW_VERSION, 1);
+
+    display.setCursor(34, 52);
+    display.print("Initializing...");
+
+    displayRefresh();
+}
+
+//
+// ==========================================================
+// WAIT BLE
+// ==========================================================
+//
+
+void drawWaitingBLE()
+{
+    displayClear();
+
+    drawTitle("Bluetooth");
+
+    drawCenteredText(22, "Waiting iPhone", 1);
+
+    drawCenteredText(40, BLE_DEVICE_NAME, 1);
+
+    displayRefresh();
+}
+
+//
+// ==========================================================
+// CONNECTED
+// ==========================================================
+//
+
+void drawConnected()
+{
+    displayClear();
+
+    drawTitle("Bluetooth");
+
+    drawCenteredText(20, "Connected", 2);
+
+    drawCenteredText(46, "Waiting GPS...", 1);
+
+    displayRefresh();
+}
+
+//
+// ==========================================================
+// WAIT GPS
+// ==========================================================
+//
+
+void drawWaitingGPS()
+{
+    displayClear();
+
+    drawTitle("Navigation");
+
+    drawCenteredText(20, "Searching", 2);
+
+    drawCenteredText(42, "GPS Signal", 1);
+
+    displayRefresh();
 }
