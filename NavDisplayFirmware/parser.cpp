@@ -1,9 +1,8 @@
 /**************************************************************************
  *
- *  NavDisplay Firmware v1.0
+ * NavDisplay Firmware v1.0
  *
- *  File        : parser.cpp
- *  Description : BLE Navigation Packet Parser
+ * File : parser.cpp
  *
  **************************************************************************/
 
@@ -17,7 +16,58 @@
 
 void parserBegin()
 {
-    systemStatus.parserReady = true;
+    parserDebug("Parser initialized");
+}
+
+//
+// ==========================================================
+// TURN PARSER
+// ==========================================================
+//
+
+TurnType parserTurnFromString(const String &value)
+{
+    String turn = value;
+    turn.trim();
+    turn.toUpperCase();
+
+    if (turn == "STRAIGHT")
+        return TurnType::STRAIGHT;
+
+    if (turn == "SLIGHT_LEFT")
+        return TurnType::SLIGHT_LEFT;
+
+    if (turn == "LEFT")
+        return TurnType::LEFT;
+
+    if (turn == "SHARP_LEFT")
+        return TurnType::SHARP_LEFT;
+
+    if (turn == "SLIGHT_RIGHT")
+        return TurnType::SLIGHT_RIGHT;
+
+    if (turn == "RIGHT")
+        return TurnType::RIGHT;
+
+    if (turn == "SHARP_RIGHT")
+        return TurnType::SHARP_RIGHT;
+
+    if (turn == "UTURN_LEFT")
+        return TurnType::UTURN_LEFT;
+
+    if (turn == "UTURN_RIGHT")
+        return TurnType::UTURN_RIGHT;
+
+    if (turn == "ROUNDABOUT")
+        return TurnType::ROUNDABOUT;
+
+    if (turn == "ARRIVE")
+        return TurnType::ARRIVE;
+
+    if (turn == "NONE")
+        return TurnType::NONE;
+
+    return TurnType::UNKNOWN;
 }
 
 //
@@ -28,39 +78,16 @@ void parserBegin()
 
 void parserDebug(const String &msg)
 {
-#if ENABLE_SERIAL_DEBUG
-    Serial.print("[PARSER] ");
+#ifdef DEBUG_SERIAL
+
+    Serial.print("[Parser] ");
     Serial.println(msg);
+
+#else
+
+    (void)msg;
+
 #endif
-}
-
-//
-// ==========================================================
-// TURN CONVERTER
-// ==========================================================
-//
-
-TurnType parserTurnFromString(const String &value)
-{
-    if (value == "STRAIGHT")      return TurnType::STRAIGHT;
-
-    if (value == "LEFT")          return TurnType::LEFT;
-    if (value == "RIGHT")         return TurnType::RIGHT;
-
-    if (value == "SLIGHT_LEFT")   return TurnType::SLIGHT_LEFT;
-    if (value == "SLIGHT_RIGHT")  return TurnType::SLIGHT_RIGHT;
-
-    if (value == "SHARP_LEFT")    return TurnType::SHARP_LEFT;
-    if (value == "SHARP_RIGHT")   return TurnType::SHARP_RIGHT;
-
-    if (value == "UTURN_LEFT")    return TurnType::UTURN_LEFT;
-    if (value == "UTURN_RIGHT")   return TurnType::UTURN_RIGHT;
-
-    if (value == "ROUNDABOUT")    return TurnType::ROUNDABOUT;
-
-    if (value == "ARRIVE")        return TurnType::ARRIVE;
-
-    return TurnType::UNKNOWN;
 }
 
 //
@@ -76,97 +103,134 @@ bool parserParse(const String &packet)
         return false;
     }
 
+    bool parsed = false;
+
     int start = 0;
 
     while (start < packet.length())
     {
         int end = packet.indexOf(';', start);
 
-        if (end < 0)
+        if (end == -1)
         {
             end = packet.length();
         }
 
-        String item = packet.substring(start, end);
+        String token = packet.substring(start, end);
 
-        int sep = item.indexOf('=');
+        token.trim();
 
-        if (sep > 0)
+        if (!token.isEmpty())
         {
-            String key = item.substring(0, sep);
-            String value = item.substring(sep + 1);
+            int eq = token.indexOf('=');
 
-            key.trim();
-            value.trim();
-
-            //--------------------------------------------------
-            // ACTIVE
-            //--------------------------------------------------
-
-            if (key == "ACTIVE")
+            if (eq > 0)
             {
-                navigationSetActive(value.toInt() != 0);
-            }
+                String key = token.substring(0, eq);
+                String value = token.substring(eq + 1);
 
-            //--------------------------------------------------
-            // GPS
-            //--------------------------------------------------
+                key.trim();
+                value.trim();
 
-            else if (key == "GPS")
-            {
-                navigationSetGPS(value.toInt() != 0);
-            }
+                key.toUpperCase();
+                //----------------------------------------------------------
+                // ACTIVE
+                //----------------------------------------------------------
 
-            //--------------------------------------------------
-            // ROAD
-            //--------------------------------------------------
+                if (key == "ACTIVE")
+                {
+                    navigationSetActive(
+                        value == "1" ||
+                        value.equalsIgnoreCase("TRUE"));
 
-            else if (key == "ROAD")
-            {
-                navigationSetRoad(value);
-            }
+                    parsed = true;
+                }
 
-            //--------------------------------------------------
-            // DISTANCE
-            //--------------------------------------------------
+                //----------------------------------------------------------
+                // GPS
+                //----------------------------------------------------------
 
-            else if (key == "DIST")
-            {
-                navigationSetDistance(value.toInt());
-            }
+                else if (key == "GPS")
+                {
+                    navigationSetGPS(
+                        value == "1" ||
+                        value.equalsIgnoreCase("TRUE"));
 
-            //--------------------------------------------------
-            // ETA
-            //--------------------------------------------------
+                    parsed = true;
+                }
 
-            else if (key == "ETA")
-            {
-                navigationSetETA(value.toInt());
-            }
+                //----------------------------------------------------------
+                // ROAD
+                //----------------------------------------------------------
 
-            //--------------------------------------------------
-            // SPEED
-            //--------------------------------------------------
+                else if (key == "ROAD")
+                {
+                    navigationSetRoad(value);
 
-            else if (key == "SPD")
-            {
-                navigationSetSpeed(value.toInt());
-            }
+                    parsed = true;
+                }
 
-            //--------------------------------------------------
-            // TURN
-            //--------------------------------------------------
+                //----------------------------------------------------------
+                // DISTANCE
+                //----------------------------------------------------------
 
-            else if (key == "TURN")
-            {
-                navigationSetTurn(
-                    parserTurnFromString(value)
-                );
+                else if (key == "DIST")
+                {
+                    navigationSetDistance(
+                        (uint32_t)value.toInt());
+
+                    parsed = true;
+                }
+
+                //----------------------------------------------------------
+                // ETA
+                //----------------------------------------------------------
+
+                else if (key == "ETA")
+                {
+                    navigationSetETA(
+                        (uint16_t)value.toInt());
+
+                    parsed = true;
+                }
+
+                //----------------------------------------------------------
+                // SPEED
+                //----------------------------------------------------------
+
+                else if (key == "SPD")
+                {
+                    navigationSetSpeed(
+                        (uint16_t)value.toInt());
+
+                    parsed = true;
+                }
+
+                //----------------------------------------------------------
+                // TURN
+                //----------------------------------------------------------
+
+                else if (key == "TURN")
+                {
+                    navigationSetTurn(
+                        parserTurnFromString(value));
+
+                    parsed = true;
+                }
+
+#ifdef DEBUG_SERIAL
+                else
+                {
+                    parserDebug(
+                        "Unknown key : " + key);
+                }
+#endif
+
             }
         }
 
         start = end + 1;
     }
 
-    return true;
+    return parsed;
 }
