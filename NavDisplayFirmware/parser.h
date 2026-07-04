@@ -3,33 +3,34 @@
 
 #include <Arduino.h>
 
+#include "config.h"
 #include "globals.h"
+#include "navigation.h"
 
 //
-// =====================================================
+// ==========================================================
+// INITIALIZATION
+// ==========================================================
+//
+
+void parserBegin();
+
+//
+// ==========================================================
 // PARSER
-// =====================================================
+// ==========================================================
 //
 
-// Parse paket data BLE
-void parseNavigationData(const String &data);
+bool parserParse(const String &packet);
 
 //
-// =====================================================
-// TURN TYPE
-// =====================================================
+// ==========================================================
+// HELPERS
+// ==========================================================
 //
 
-TurnType parseTurnType(const String &turn);
+TurnType parserTurnFromString(const String &value);
 
-String turnTypeToString(TurnType turn);
-
-//
-// =====================================================
-// UTILITIES
-// =====================================================
-//
-
-void clearNavigation();
+void parserDebug(const String &msg);
 
 #endif
