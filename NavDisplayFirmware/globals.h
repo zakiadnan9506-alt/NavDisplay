@@ -2,20 +2,12 @@
 #define GLOBALS_H
 
 #include <Arduino.h>
-#include <NimBLEDevice.h>
 
 //
-// =====================================================
-// ENUM
-// =====================================================
+// ==========================================================
+// TURN TYPE
+// ==========================================================
 //
-
-enum class BLEState : uint8_t
-{
-    DISCONNECTED = 0,
-    ADVERTISING,
-    CONNECTED
-};
 
 enum class TurnType : uint8_t
 {
@@ -23,13 +15,12 @@ enum class TurnType : uint8_t
 
     STRAIGHT,
 
-    LEFT,
-    RIGHT,
-
     SLIGHT_LEFT,
-    SLIGHT_RIGHT,
-
+    LEFT,
     SHARP_LEFT,
+
+    SLIGHT_RIGHT,
+    RIGHT,
     SHARP_RIGHT,
 
     UTURN_LEFT,
@@ -43,108 +34,78 @@ enum class TurnType : uint8_t
 };
 
 //
-// =====================================================
+// ==========================================================
 // NAVIGATION DATA
-// =====================================================
+// ==========================================================
 //
 
 struct NavigationData
 {
-    bool active;
+    bool active = false;
 
-    TurnType turn;
+    bool hasGPS = false;
 
-    String roadName;
+    TurnType turn = TurnType::NONE;
 
-    uint32_t distance;
+    String road = "";
 
-    uint16_t speed;
+    uint32_t distance = 0;     // meter
 
-    uint16_t eta;
+    uint16_t eta = 0;          // menit
 
-    bool gpsValid;
+    uint16_t speed = 0;        // km/h
 
-    uint32_t lastUpdate;
+    uint32_t lastUpdate = 0;
 };
 
 //
-// =====================================================
+// ==========================================================
+// BATTERY DATA
+// ==========================================================
+//
+
+struct BatteryData
+{
+    float voltage = 0.0f;
+
+    uint8_t percentage = 0;
+
+    bool charging = false;
+
+    uint32_t lastUpdate = 0;
+};
+
+//
+// ==========================================================
 // SYSTEM STATUS
-// =====================================================
+// ==========================================================
 //
 
 struct SystemStatus
 {
-    BLEState bleState;
+    bool bleConnected = false;
 
-    bool bleConnected;
+    bool displayReady = false;
 
-    bool displayReady;
+    bool parserReady = false;
 
-    bool newData;
+    bool navigationReady = false;
+
+    bool batteryReady = false;
+
+    bool initialized = false;
 };
 
 //
-// =====================================================
-// BATTERY
-// =====================================================
-//
-
-struct BatteryStatus
-{
-    float voltage;
-
-    uint8_t percent;
-
-    bool charging;
-};
-
-//
-// =====================================================
-// GLOBAL VARIABLES
-// =====================================================
+// ==========================================================
+// GLOBAL OBJECTS
+// ==========================================================
 //
 
 extern NavigationData navData;
 
+extern BatteryData batteryData;
+
 extern SystemStatus systemStatus;
-
-extern BatteryStatus batteryStatus;
-
-//
-// =====================================================
-// BLE OBJECTS
-// =====================================================
-//
-
-extern NimBLEServer* bleServer;
-
-extern NimBLEService* bleService;
-
-extern NimBLECharacteristic* bleRxCharacteristic;
-
-extern NimBLECharacteristic* bleTxCharacteristic;
-
-//
-// =====================================================
-// TIMERS
-// =====================================================
-//
-
-extern unsigned long lastDisplayRefresh;
-
-extern unsigned long lastBLEActivity;
-
-extern unsigned long lastBatteryRead;
-
-//
-// =====================================================
-// FUNCTION PROTOTYPES
-// =====================================================
-//
-
-void resetNavigationData();
-
-void resetSystemStatus();
 
 #endif
