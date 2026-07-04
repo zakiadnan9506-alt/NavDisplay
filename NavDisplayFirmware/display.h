@@ -53,7 +53,7 @@ bool displayBegin();
 // ==========================================================
 //
 
-void updateDisplay();
+void displayUpdate();
 
 //
 // ==========================================================
@@ -83,6 +83,8 @@ void drawNavigation();
 
 void drawIdleScreen();
 
+void drawSplash();
+
 //
 // ==========================================================
 // HELPERS
@@ -104,5 +106,11 @@ void drawTitle(
 void displayClear();
 
 void displayRefresh();
+
+String formatDistance(uint32_t meter);
+
+String formatETA(uint16_t minute);
+
+String formatSpeed(uint16_t kmh);
 
 #endif
