@@ -5,12 +5,12 @@
 
 //
 // ==========================================================
-// PROJECT INFORMATION
+// FIRMWARE INFORMATION
 // ==========================================================
 //
 
-#define FW_NAME        "NavDisplay"
-#define FW_VERSION     "1.0.0"
+#define FW_NAME             "NavDisplay"
+#define FW_VERSION          "v1.0"
 
 //
 // ==========================================================
@@ -18,15 +18,14 @@
 // ==========================================================
 //
 
-// OLED SSD1306
-#define SCREEN_WIDTH   128
-#define SCREEN_HEIGHT  64
+#define SCREEN_WIDTH        128
+#define SCREEN_HEIGHT       64
 
-#define OLED_I2C_ADDR  0x3C
+#define OLED_I2C_ADDR       0x3C
 
 // ESP32-C3 SuperMini I2C Default
-#define OLED_SDA_PIN   8
-#define OLED_SCL_PIN   9
+#define OLED_SDA_PIN        8
+#define OLED_SCL_PIN        9
 
 //
 // ==========================================================
@@ -36,9 +35,16 @@
 
 #define BATTERY_ADC_PIN     0
 
-// ADC calibration
+// ADC Calibration
 #define BATTERY_MIN_VOLT    3.30f
 #define BATTERY_MAX_VOLT    4.20f
+
+// Divider Ratio (ubah bila menggunakan voltage divider)
+#define BATTERY_DIVIDER_RATIO   2.0f
+
+// ADC
+#define ADC_RESOLUTION      4095.0f
+#define ADC_REFERENCE       3.30f
 
 //
 // ==========================================================
@@ -46,17 +52,16 @@
 // ==========================================================
 //
 
-// Device Name
 #define BLE_DEVICE_NAME     "NavDisplay"
 
-// UUID Service
-#define BLE_SERVICE_UUID            "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+#define BLE_SERVICE_UUID \
+"6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
 
-// RX Characteristic
-#define BLE_CHARACTERISTIC_RX_UUID  "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+#define BLE_CHARACTERISTIC_RX_UUID \
+"6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 
-// TX Characteristic
-#define BLE_CHARACTERISTIC_TX_UUID  "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+#define BLE_CHARACTERISTIC_TX_UUID \
+"6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
 //
 // ==========================================================
@@ -68,7 +73,7 @@
 
 //
 // ==========================================================
-// DISPLAY UPDATE
+// DISPLAY
 // ==========================================================
 //
 
@@ -76,22 +81,30 @@
 
 //
 // ==========================================================
-// NAVIGATION DEFAULTS
+// NAVIGATION
 // ==========================================================
 //
 
-#define DEFAULT_DISTANCE       0
-#define DEFAULT_SPEED          0
-#define DEFAULT_ETA_MINUTES    0
+// Jika tidak ada data baru selama 5 detik,
+// navigasi dianggap selesai.
+#define GPS_TIMEOUT_MS      5000
+
+// Panjang maksimum nama jalan
+#define MAX_ROAD_LENGTH     64
 
 //
 // ==========================================================
-// TIMEOUTS
+// UI
 // ==========================================================
 //
 
-#define BLE_TIMEOUT_MS         15000
-#define GPS_TIMEOUT_MS         5000
+#define STATUS_BAR_HEIGHT   12
+
+#define TURN_ICON_SIZE      32
+
+#define TEXT_SMALL          1
+#define TEXT_NORMAL         1
+#define TEXT_LARGE          2
 
 //
 // ==========================================================
@@ -99,19 +112,6 @@
 // ==========================================================
 //
 
-// 1 = Enable Serial Debug
-// 0 = Disable Debug
-
-#define DEBUG_SERIAL 1
-
-#if DEBUG_SERIAL
-    #define DEBUG_PRINT(x)     Serial.print(x)
-    #define DEBUG_PRINTLN(x)   Serial.println(x)
-    #define DEBUG_PRINTF(...)  Serial.printf(__VA_ARGS__)
-#else
-    #define DEBUG_PRINT(x)
-    #define DEBUG_PRINTLN(x)
-    #define DEBUG_PRINTF(...)
-#endif
+#define ENABLE_SERIAL_DEBUG     true
 
 #endif
