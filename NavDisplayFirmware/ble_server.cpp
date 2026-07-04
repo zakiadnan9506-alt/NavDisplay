@@ -1,181 +1,155 @@
+/**************************************************************************
+ *
+ *  NavDisplay Firmware v1.0
+ *
+ *  File        : ble_server.cpp
+ *  Description : BLE Server (Nordic UART Service)
+ *
+ **************************************************************************/
+
 #include "ble_server.h"
 
-//
-// =====================================================
-// FORWARD DECLARATION
-// =====================================================
-//
-
-// Akan diimplementasikan pada parser.cpp
-extern void parseNavigationData(const String &data);
+#include "globals.h"
+#include "parser.h"
 
 //
-// =====================================================
-// CALLBACK OBJECTS
-// =====================================================
+// ==========================================================
+// BLE OBJECTS
+// ==========================================================
 //
 
-static ServerCallbacks serverCallbacks;
-static RXCallbacks rxCallbacks;
+static NimBLEServer* bleServer = nullptr;
+
+static NimBLEService* bleService = nullptr;
+
+static NimBLECharacteristic* bleRX = nullptr;
+
+static NimBLECharacteristic* bleTX = nullptr;
 
 //
-// =====================================================
+// ==========================================================
 // SERVER CALLBACKS
-// =====================================================
+// ==========================================================
 //
 
-void ServerCallbacks::onConnect(
-    NimBLEServer *pServer,
-    NimBLEConnInfo &connInfo)
+void ServerCallbacks::onConnect(NimBLEServer* server)
 {
-    (void)pServer;
-    (void)connInfo;
+    (void)server;
 
     systemStatus.bleConnected = true;
-    systemStatus.bleState = BLEState::CONNECTED;
 
-    lastBLEActivity = millis();
-
-    DEBUG_PRINTLN("BLE Client Connected");
+#if ENABLE_SERIAL_DEBUG
+    Serial.println("[BLE] Connected");
+#endif
 }
 
-void ServerCallbacks::onDisconnect(
-    NimBLEServer *pServer,
-    NimBLEConnInfo &connInfo,
-    int reason)
+void ServerCallbacks::onDisconnect(NimBLEServer* server)
 {
-    (void)connInfo;
-    (void)reason;
+    (void)server;
 
     systemStatus.bleConnected = false;
-    systemStatus.bleState = BLEState::ADVERTISING;
 
-    resetNavigationData();
+#if ENABLE_SERIAL_DEBUG
+    Serial.println("[BLE] Disconnected");
+#endif
 
-    DEBUG_PRINTLN("BLE Client Disconnected");
-
-    pServer->startAdvertising();
+    NimBLEDevice::startAdvertising();
 }
 
 //
-// =====================================================
+// ==========================================================
 // RX CALLBACK
-// =====================================================
+// ==========================================================
 //
 
-void RXCallbacks::onWrite(
-    NimBLECharacteristic *pCharacteristic,
-    NimBLEConnInfo &connInfo)
+void RXCallbacks::onWrite(NimBLECharacteristic* characteristic)
 {
-    (void)connInfo;
+    std::string rx = characteristic->getValue();
 
-    std::string value = pCharacteristic->getValue();
-
-    if (value.empty())
+    if (rx.empty())
     {
         return;
     }
 
-    lastBLEActivity = millis();
+    String packet(rx.c_str());
 
-    String data(value.c_str());
+#if ENABLE_SERIAL_DEBUG
+    Serial.print("[BLE RX] ");
+    Serial.println(packet);
+#endif
 
-    DEBUG_PRINT("RX : ");
-    DEBUG_PRINTLN(data);
-
-    parseNavigationData(data);
+    parserParse(packet);
 }
 
 //
-// =====================================================
-// BLE INITIALIZATION
-// =====================================================
+// ==========================================================
+// BLE BEGIN
+// ==========================================================
 //
 
 bool bleBegin()
 {
-    DEBUG_PRINTLN("Initializing BLE...");
-
     NimBLEDevice::init(BLE_DEVICE_NAME);
-
-    NimBLEDevice::setPower(ESP_PWR_LVL_P9);
 
     bleServer = NimBLEDevice::createServer();
 
-    bleServer->setCallbacks(&serverCallbacks);
+    bleServer->setCallbacks(new ServerCallbacks());
 
-    bleService = bleServer->createService(BLE_SERVICE_UUID);
+    bleService =
+        bleServer->createService(
+            BLE_SERVICE_UUID
+        );
 
-    //
-    // RX Characteristic
-    //
+    bleRX =
+        bleService->createCharacteristic(
+            BLE_CHARACTERISTIC_RX_UUID,
+            NIMBLE_PROPERTY::WRITE |
+            NIMBLE_PROPERTY::WRITE_NR
+        );
 
-    bleRxCharacteristic = bleService->createCharacteristic(
-        BLE_CHARACTERISTIC_RX_UUID,
-        NIMBLE_PROPERTY::WRITE |
-        NIMBLE_PROPERTY::WRITE_NR);
+    bleTX =
+        bleService->createCharacteristic(
+            BLE_CHARACTERISTIC_TX_UUID,
+            NIMBLE_PROPERTY::NOTIFY
+        );
 
-    bleRxCharacteristic->setCallbacks(&rxCallbacks);
-
-    //
-    // TX Characteristic
-    //
-
-    bleTxCharacteristic = bleService->createCharacteristic(
-        BLE_CHARACTERISTIC_TX_UUID,
-        NIMBLE_PROPERTY::READ |
-        NIMBLE_PROPERTY::NOTIFY);
-
-    bleTxCharacteristic->setValue("NavDisplay");
+    bleRX->setCallbacks(new RXCallbacks());
 
     bleService->start();
 
-    bleStartAdvertising();
-
-    DEBUG_PRINTLN("BLE Ready");
-
-    return true;
-}
-
-//
-// =====================================================
-// START ADVERTISING
-// =====================================================
-//
-
-void bleStartAdvertising()
-{
-    NimBLEAdvertising *advertising =
+    NimBLEAdvertising* advertising =
         NimBLEDevice::getAdvertising();
 
-    advertising->addServiceUUID(BLE_SERVICE_UUID);
+    advertising->addServiceUUID(
+        BLE_SERVICE_UUID
+    );
 
     advertising->setScanResponse(true);
 
     advertising->start();
 
-    systemStatus.bleState = BLEState::ADVERTISING;
+#if ENABLE_SERIAL_DEBUG
+    Serial.println("[BLE] Advertising...");
+#endif
 
-    DEBUG_PRINTLN("Advertising Started");
+    return true;
 }
 
 //
-// =====================================================
-// STOP ADVERTISING
-// =====================================================
+// ==========================================================
+// UPDATE
+// ==========================================================
 //
 
-void bleStopAdvertising()
+void bleUpdate()
 {
-    NimBLEDevice::getAdvertising()->stop();
-
-    DEBUG_PRINTLN("Advertising Stopped");
+    // Reserved
 }
 
 //
-// =====================================================
-// CONNECTION STATUS
-// =====================================================
+// ==========================================================
+// STATUS
+// ==========================================================
 //
 
 bool bleIsConnected()
@@ -184,40 +158,19 @@ bool bleIsConnected()
 }
 
 //
-// =====================================================
-// SEND DATA
-// =====================================================
+// ==========================================================
+// SEND
+// ==========================================================
 //
 
-void bleSend(const String &message)
+void bleSend(const String& text)
 {
     if (!bleIsConnected())
     {
         return;
     }
 
-    bleTxCharacteristic->setValue(message.c_str());
+    bleTX->setValue(text.c_str());
 
-    bleTxCharacteristic->notify();
-}
-
-//
-// =====================================================
-// BLE LOOP
-// =====================================================
-//
-
-void bleLoop()
-{
-    if (!bleIsConnected())
-    {
-        return;
-    }
-
-    if (millis() - lastBLEActivity > BLE_TIMEOUT_MS)
-    {
-        DEBUG_PRINTLN("BLE Timeout");
-
-        resetNavigationData();
-    }
+    bleTX->notify();
 }
