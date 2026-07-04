@@ -7,65 +7,75 @@
 #include "globals.h"
 
 //
-// =====================================================
+// ==========================================================
 // INITIALIZATION
-// =====================================================
+// ==========================================================
 //
 
 void navigationBegin();
 
 //
-// =====================================================
+// ==========================================================
 // UPDATE
-// =====================================================
+// ==========================================================
 //
-
-void navigationLoop();
 
 void navigationUpdate();
 
 //
-// =====================================================
-// CONTROL
-// =====================================================
+// ==========================================================
+// RESET
+// ==========================================================
 //
 
-void navigationStart();
-
-void navigationStop();
-
-void navigationRefresh();
+void navigationReset();
 
 //
-// =====================================================
-// STATUS
-// =====================================================
+// ==========================================================
+// SETTERS
+// ==========================================================
+//
+
+void navigationSetActive(bool active);
+
+void navigationSetGPS(bool gps);
+
+void navigationSetTurn(TurnType turn);
+
+void navigationSetRoad(const String &road);
+
+void navigationSetDistance(uint32_t distance);
+
+void navigationSetETA(uint16_t eta);
+
+void navigationSetSpeed(uint16_t speed);
+
+//
+// ==========================================================
+// GETTERS
+// ==========================================================
 //
 
 bool navigationActive();
 
 bool navigationHasGPS();
 
-bool navigationDataValid();
-
-bool navigationTimedOut();
-
-//
-// =====================================================
-// INFORMATION
-// =====================================================
-//
-
-unsigned long navigationAge();
-
-uint32_t navigationDistance();
-
-uint16_t navigationSpeed();
-
-uint16_t navigationETA();
+TurnType navigationTurn();
 
 String navigationRoad();
 
-TurnType navigationTurn();
+uint32_t navigationDistance();
+
+uint16_t navigationETA();
+
+uint16_t navigationSpeed();
+
+//
+// ==========================================================
+// INTERNAL
+// ==========================================================
+//
+
+void navigationTouch();
 
 #endif
