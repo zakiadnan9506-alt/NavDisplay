@@ -216,39 +216,105 @@ void drawTopBar(const String &title)
     display.setTextColor(SSD1306_WHITE);
 }
 
-void drawDistance(const String &distance)
+void drawDistance(uint32_t meter)
 {
+    display.setTextColor(SSD1306_WHITE);
     display.setTextSize(2);
-    display.setTextColor(SSD1306_WHITE);
-
     display.setCursor(48, 22);
-    display.print(distance);
+
+    if (meter < 1000)
+    {
+        display.print(meter);
+        display.print(" m");
+    }
+    else
+    {
+        float km = meter / 1000.0f;
+
+        display.print(km, 1);
+        display.print(" km");
+    }
 }
 
-void drawRoadName(const String &roadName)
+void drawRoadName(const String &road)
+{
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 54);
+    display.print(road);
+}
+
+void drawETA(uint16_t minute)
 {
     display.setTextSize(1);
     display.setTextColor(SSD1306_WHITE);
 
-    display.setCursor(0, 50);
-    display.print(roadName);
+    display.setCursor(88, 0);
+
+    if (minute < 60)
+    {
+        display.print(minute);
+        display.print(" min");
+    }
+    else
+    {
+        uint16_t hour = minute / 60;
+        uint16_t min = minute % 60;
+
+        display.print(hour);
+        display.print("h ");
+
+        if (min < 10)
+            display.print('0');
+
+        display.print(min);
+        display.print("m");
+    }
 }
 
-void drawETA(const String &eta)
-{
-    display.setTextSize(1);
-    display.setTextColor(SSD1306_WHITE);
-
-    display.setCursor(92, 0);
-    display.print(eta);
-}
-
-void drawSpeed(uint16_t speed)
+void drawSpeed(uint16_t kmh)
 {
     display.setTextSize(1);
     display.setTextColor(SSD1306_WHITE);
 
     display.setCursor(0, 0);
-    display.print(speed);
-    display.print("km");
+
+    display.print(kmh);
+    display.print(" km/h");
+}
+//
+// ==========================================================
+// MAIN NAVIGATION SCREEN
+// ==========================================================
+//
+
+void drawNavigationScreen()
+{
+    displayClear();
+
+    drawTopBar("Navigation");
+
+    // Turn icon
+    drawTurnIcon(
+        navigationTurn(),
+        2,
+        18);
+
+    // Distance
+    drawDistance(
+        navigationDistance());
+
+    // Road
+    drawRoadName(
+        navigationRoad());
+
+    // ETA
+    drawETA(
+        navigationETA());
+
+    // Speed
+    drawSpeed(
+        navigationSpeed());
+
+    displayRefresh();
 }
