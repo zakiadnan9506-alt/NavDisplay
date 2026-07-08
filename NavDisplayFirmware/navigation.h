@@ -8,25 +8,13 @@
 
 //
 // ==========================================================
-// INITIALIZATION
+// NAVIGATION MANAGER
 // ==========================================================
 //
 
 void navigationBegin();
 
-//
-// ==========================================================
-// UPDATE
-// ==========================================================
-//
-
 void navigationUpdate();
-
-//
-// ==========================================================
-// RESET
-// ==========================================================
-//
 
 void navigationReset();
 
@@ -40,7 +28,7 @@ void navigationSetActive(bool active);
 
 void navigationSetGPS(bool gps);
 
-void navigationSetRoad(const String &road);
+void navigationSetRoad(const String& road);
 
 void navigationSetDistance(uint32_t meter);
 
@@ -55,6 +43,7 @@ void navigationSetTurn(TurnType turn);
 // GETTERS
 // ==========================================================
 //
+
 bool navigationActive();
 
 bool navigationGPS();
@@ -68,6 +57,7 @@ uint16_t navigationETA();
 uint16_t navigationSpeed();
 
 TurnType navigationTurn();
+
 //
 // ==========================================================
 // INTERNAL
