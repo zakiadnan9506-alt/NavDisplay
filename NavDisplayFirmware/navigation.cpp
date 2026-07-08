@@ -1,9 +1,8 @@
 /**************************************************************************
  *
- *  NavDisplay Firmware v1.0
+ * NavDisplay Framework v1.0
  *
- *  File        : navigation.cpp
- *  Description : Navigation Manager
+ * File : navigation.cpp
  *
  **************************************************************************/
 
@@ -18,7 +17,6 @@
 void navigationBegin()
 {
     navigationReset();
-
     systemStatus.navigationReady = true;
 }
 
@@ -35,10 +33,11 @@ void navigationUpdate()
         return;
     }
 
-    // Timeout navigation apabila tidak ada data baru
     if (navData.active)
     {
-        if ((millis() - navData.lastUpdate) > GPS_TIMEOUT_MS)
+        const uint32_t elapsed = millis() - navData.lastUpdate;
+
+        if (elapsed >= GPS_TIMEOUT_MS)
         {
             navigationReset();
         }
@@ -53,21 +52,9 @@ void navigationUpdate()
 
 void navigationReset()
 {
-    navData.active = false;
+    navData.reset();
 
-    navData.hasGPS = false;
-
-    navData.turn = TurnType::NONE;
-
-    navData.road.clear();
-
-    navData.distance = 0;
-
-    navData.eta = 0;
-
-    navData.speed = 0;
-
-    navData.lastUpdate = millis();
+    navigationTouch();
 }
 
 //
@@ -90,25 +77,16 @@ void navigationTouch()
 void navigationSetActive(bool active)
 {
     navData.active = active;
-
     navigationTouch();
 }
 
 void navigationSetGPS(bool gps)
 {
     navData.hasGPS = gps;
-
     navigationTouch();
 }
 
-void navigationSetTurn(TurnType turn)
-{
-    navData.turn = turn;
-
-    navigationTouch();
-}
-
-void navigationSetRoad(const String &road)
+void navigationSetRoad(const String& road)
 {
     navData.road = road;
 
@@ -123,21 +101,24 @@ void navigationSetRoad(const String &road)
 void navigationSetDistance(uint32_t meter)
 {
     navData.distance = meter;
-
     navigationTouch();
 }
 
-void navigationSetETA(uint16_t eta)
+void navigationSetETA(uint16_t minute)
 {
-    navData.eta = eta;
-
+    navData.eta = minute;
     navigationTouch();
 }
 
-void navigationSetSpeed(uint16_t speed)
+void navigationSetSpeed(uint16_t kmh)
 {
-    navData.speed = speed;
+    navData.speed = kmh;
+    navigationTouch();
+}
 
+void navigationSetTurn(TurnType turn)
+{
+    navData.turn = turn;
     navigationTouch();
 }
 
@@ -152,14 +133,9 @@ bool navigationActive()
     return navData.active;
 }
 
-bool navigationHasGPS()
+bool navigationGPS()
 {
     return navData.hasGPS;
-}
-
-TurnType navigationTurn()
-{
-    return navData.turn;
 }
 
 const String& navigationRoad()
@@ -180,4 +156,9 @@ uint16_t navigationETA()
 uint16_t navigationSpeed()
 {
     return navData.speed;
+}
+
+TurnType navigationTurn()
+{
+    return navData.turn;
 }
