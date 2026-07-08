@@ -17,20 +17,38 @@ void parserBegin();
 
 //
 // ==========================================================
-// PARSER
+// MAIN PARSER
 // ==========================================================
 //
 
-bool parserParse(const String &packet);
+bool parserParse(const String& packet);
 
 //
 // ==========================================================
-// HELPERS
+// TOKEN PARSER
 // ==========================================================
 //
 
-TurnType parserTurnFromString(const String &value);
+bool parserParseToken(
+    const String& key,
+    const String& value);
 
-void parserDebug(const String &msg);
+//
+// ==========================================================
+// TURN PARSER
+// ==========================================================
+//
+
+TurnType parserTurnFromString(
+    const String& value);
+
+//
+// ==========================================================
+// DEBUG
+// ==========================================================
+//
+
+void parserDebug(
+    const String& msg);
 
 #endif
