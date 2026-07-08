@@ -4,56 +4,48 @@
 #include <Arduino.h>
 #include <Adafruit_GFX.h>
 
-#include "navigation.h"
+#include "globals.h"
 
 //
 // ==========================================================
-// NavDisplay Framework v1.0
-// Icon Renderer
-// ==========================================================
-//
-// Semua bitmap disimpan pada icons.cpp menggunakan PROGMEM.
-//
-// File ini hanya mengekspos API rendering sehingga modul
-// lain tidak mengetahui detail implementasi bitmap.
-//
+// ICON SIZE
 // ==========================================================
 //
 
 constexpr uint8_t NAV_ICON_SIZE = 48;
 
 //
-// Navigation
+// ==========================================================
+// TURN ICON
+// ==========================================================
 //
+
 void drawTurnIcon(
-    Adafruit_GFX& display,
+    Adafruit_GFX& gfx,
     TurnType turn,
     int16_t x,
     int16_t y);
 
 //
-// BLE
+// ==========================================================
+// STATUS ICONS
+// ==========================================================
 //
+
 void drawBLEIcon(
-    Adafruit_GFX& display,
+    Adafruit_GFX& gfx,
     int16_t x,
     int16_t y,
     bool connected);
 
-//
-// GPS
-//
 void drawGPSIcon(
-    Adafruit_GFX& display,
+    Adafruit_GFX& gfx,
     int16_t x,
     int16_t y,
     bool gps);
 
-//
-// Battery
-//
 void drawBatteryIcon(
-    Adafruit_GFX& display,
+    Adafruit_GFX& gfx,
     int16_t x,
     int16_t y,
     uint8_t percent);
