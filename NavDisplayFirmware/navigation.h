@@ -52,6 +52,8 @@ const String& navigationRoad();
 
 uint32_t navigationDistance();
 
+uint32_t navigationAge();
+
 uint16_t navigationETA();
 
 uint16_t navigationSpeed();
