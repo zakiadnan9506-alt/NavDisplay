@@ -1,18 +1,7 @@
-/**************************************************************************
- *
- * NavDisplay Framework v1.0
- *
- * parser.cpp
- *
- **************************************************************************/
-
 #include "parser.h"
 
-//
-// ==========================================================
-// TURN TABLE
-// ==========================================================
-//
+namespace NavDisplay
+{
 
 struct TurnMap
 {
@@ -20,7 +9,7 @@ struct TurnMap
     TurnType type;
 };
 
-static const TurnMap turnTable[] =
+static constexpr TurnMap turnTable[] =
 {
     {"NONE",TurnType::NONE},
 
@@ -75,34 +64,21 @@ static const TurnMap turnTable[] =
     {"GPS_LOST",TurnType::GPS_LOST}
 };
 
-//
-// ==========================================================
-// INITIALIZATION
-// ==========================================================
-//
-
 void parserBegin()
 {
-    parserDebug("Parser initialized");
+    parserDebug(F("Parser initialized"));
 }
-
-//
-// ==========================================================
-// TURN PARSER
-// ==========================================================
-//
 
 TurnType parserTurnFromString(const String& value)
 {
-    String turn=value;
+    String turn(value);
 
     turn.trim();
-
     turn.toUpperCase();
 
-    for(const auto& item : turnTable)
+    for (const auto& item : turnTable)
     {
-        if(turn.equals(item.name))
+        if (turn.equals(item.name))
         {
             return item.type;
         }
@@ -111,162 +87,119 @@ TurnType parserTurnFromString(const String& value)
     return TurnType::UNKNOWN;
 }
 
-//
-// ==========================================================
-// TOKEN PARSER
-// ==========================================================
-//
-
 bool parserParseToken(
     const String& key,
     const String& value)
 {
-    if(key=="ACTIVE")
+    if (key == F("ACTIVE"))
     {
         navigationSetActive(
-            value=="1"||
+            value == "1" ||
             value.equalsIgnoreCase("TRUE"));
-
         return true;
     }
 
-    if(key=="GPS")
+    if (key == F("GPS"))
     {
         navigationSetGPS(
-            value=="1"||
+            value == "1" ||
             value.equalsIgnoreCase("TRUE"));
-
         return true;
     }
 
-    if(key=="ROAD")
+    if (key == F("ROAD"))
     {
         navigationSetRoad(value);
-
         return true;
     }
 
-    if(key=="DIST")
+    if (key == F("DIST"))
     {
-        navigationSetDistance(value.toInt());
-
+        navigationSetDistance(
+            static_cast<uint32_t>(value.toInt()));
         return true;
     }
 
-    if(key=="ETA")
+    if (key == F("ETA"))
     {
-        navigationSetETA(value.toInt());
-
+        navigationSetETA(
+            static_cast<uint16_t>(value.toInt()));
         return true;
     }
 
-    if(key=="SPD")
+    if (key == F("SPD"))
     {
-        navigationSetSpeed(value.toInt());
-
+        navigationSetSpeed(
+            static_cast<uint16_t>(value.toInt()));
         return true;
     }
 
-    if(key=="TURN")
+    if (key == F("TURN"))
     {
         navigationSetTurn(
             parserTurnFromString(value));
-
         return true;
     }
 
 #if ENABLE_SERIAL_DEBUG
-
-    parserDebug("Unknown key : "+key);
-
+    parserDebug(String(F("Unknown key: ")) + key);
 #endif
 
     return false;
 }
 
-//
-// ==========================================================
-// MAIN PARSER
-// ==========================================================
-//
-
-bool parserParse(
-    const String& packet)
+bool parserParse(const String& packet)
 {
-    if(packet.isEmpty())
-    {
+    if (packet.isEmpty())
         return false;
-    }
 
-    bool parsed=false;
+    bool parsed = false;
 
-    int start=0;
+    int start = 0;
 
-    while(start<packet.length())
+    while (start < packet.length())
     {
-        int end=
-            packet.indexOf(';',start);
+        int end = packet.indexOf(';', start);
 
-        if(end<0)
-        {
-            end=packet.length();
-        }
+        if (end < 0)
+            end = packet.length();
 
-        String token=
-            packet.substring(start,end);
+        String token = packet.substring(start, end);
 
         token.trim();
 
-        if(!token.isEmpty())
+        if (!token.isEmpty())
         {
-            int eq=
-                token.indexOf('=');
+            int eq = token.indexOf('=');
 
-            if(eq>0)
+            if (eq > 0)
             {
-                String key=
-                    token.substring(0,eq);
-
-                String value=
-                    token.substring(eq+1);
+                String key = token.substring(0, eq);
+                String value = token.substring(eq + 1);
 
                 key.trim();
+                key.toUpperCase();
 
                 value.trim();
 
-                key.toUpperCase();
-
-                parsed|=
-                    parserParseToken(
-                        key,
-                        value);
+                parsed |= parserParseToken(key, value);
             }
         }
 
-        start=end+1;
+        start = end + 1;
     }
 
     return parsed;
 }
 
-//
-// ==========================================================
-// DEBUG
-// ==========================================================
-//
-
-void parserDebug(
-    const String& msg)
+void parserDebug(const String& msg)
 {
 #if ENABLE_SERIAL_DEBUG
-
-    Serial.print("[Parser] ");
-
+    Serial.print(F("[Parser] "));
     Serial.println(msg);
-
 #else
-
     (void)msg;
-
 #endif
 }
+
+} // namespace NavDisplay
