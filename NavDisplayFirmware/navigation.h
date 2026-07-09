@@ -6,66 +6,55 @@
 #include "config.h"
 #include "globals.h"
 
-//
-// ==========================================================
-// NAVIGATION MANAGER
-// ==========================================================
-//
+namespace NavDisplay
+{
+
+// ============================================================================
+// Lifecycle
+// ============================================================================
 
 void navigationBegin();
-
 void navigationUpdate();
-
 void navigationReset();
 
-//
-// ==========================================================
-// SETTERS
-// ==========================================================
-//
+// ============================================================================
+// Setters
+// ============================================================================
 
 void navigationSetActive(bool active);
-
 void navigationSetGPS(bool gps);
 
 void navigationSetRoad(const String& road);
 
 void navigationSetDistance(uint32_t meter);
-
 void navigationSetETA(uint16_t minute);
-
 void navigationSetSpeed(uint16_t kmh);
 
 void navigationSetTurn(TurnType turn);
 
-//
-// ==========================================================
-// GETTERS
-// ==========================================================
-//
+// ============================================================================
+// Getters
+// ============================================================================
 
-bool navigationActive();
+[[nodiscard]] bool navigationActive();
+[[nodiscard]] bool navigationGPS();
 
-bool navigationGPS();
+[[nodiscard]] const String& navigationRoad();
 
-const String& navigationRoad();
+[[nodiscard]] uint32_t navigationDistance();
+[[nodiscard]] uint32_t navigationAge();
 
-uint32_t navigationDistance();
+[[nodiscard]] uint16_t navigationETA();
+[[nodiscard]] uint16_t navigationSpeed();
 
-uint32_t navigationAge();
+[[nodiscard]] TurnType navigationTurn();
 
-uint16_t navigationETA();
-
-uint16_t navigationSpeed();
-
-TurnType navigationTurn();
-
-//
-// ==========================================================
-// INTERNAL
-// ==========================================================
-//
+// ============================================================================
+// Internal
+// ============================================================================
 
 void navigationTouch();
 
-#endif
+} // namespace NavDisplay
+
+#endif // NAVIGATION_H
