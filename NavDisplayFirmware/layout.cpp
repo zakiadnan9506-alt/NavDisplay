@@ -1,35 +1,37 @@
 #include "layout.h"
 
-//
-// ==========================================================
-// NavDisplay Framework v1.0
-// Layout Engine
-// ==========================================================
-//
-// Seluruh konstanta layout berada di layout.h sebagai constexpr
-// sehingga compiler dapat melakukan compile-time optimization.
-//
-// File ini disediakan agar:
-//
-// - kompatibel dengan struktur proyek Arduino
-// - menjadi tempat implementasi utilitas layout di masa depan
-// - tidak mengonsumsi RAM tambahan
-//
-// ==========================================================
-
 namespace Layout
 {
 
-// -----------------------------------------------------------------
-// Tidak ada implementasi saat ini.
-//
-// Semua fungsi helper berada di layout.h sebagai inline constexpr
-// agar:
-//
-// - tidak menghasilkan symbol tambahan
-// - tidak menggunakan RAM
-// - seluruh perhitungan dilakukan compile-time
-//
-// -----------------------------------------------------------------
+// ============================================================================
+// Compile-time layout validation
+// ============================================================================
+
+static_assert(ScreenWidth > 0, "Invalid screen width.");
+static_assert(ScreenHeight > 0, "Invalid screen height.");
+
+static_assert(StatusBarHeight >= 0,
+              "Status bar height must be positive.");
+
+static_assert(StatusBarHeight < ScreenHeight,
+              "Status bar exceeds screen height.");
+
+static_assert(ContentWidth > 0,
+              "Content width must be greater than zero.");
+
+static_assert(ContentHeight > 0,
+              "Content height must be greater than zero.");
+
+static_assert(BatteryX >= 0,
+              "Battery icon outside screen.");
+
+static_assert(BLEIconX >= 0,
+              "BLE icon outside screen.");
+
+static_assert(GPSIconX >= 0,
+              "GPS icon outside screen.");
+
+static_assert(FooterY < ScreenHeight,
+              "Footer outside screen.");
 
 } // namespace Layout
