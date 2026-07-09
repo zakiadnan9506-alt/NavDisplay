@@ -2,151 +2,75 @@
 #define LAYOUT_H
 
 #include <Arduino.h>
-#include "config.h"
-
-//
-// ==========================================================
-// NavDisplay Framework v1.0
-// Layout Engine
-// ==========================================================
-//
-// Semua ukuran UI disimpan di sini agar display.cpp
-// tidak memiliki magic number.
-//
-// Target:
-// - SSD1306 128x64
-// - ESP32-C3
-// - Arduino ESP32 Core 3.3.x
-//
-// ==========================================================
-//
 
 namespace Layout
 {
 
-// ----------------------------------------------------------
-// Display
-// ----------------------------------------------------------
+// =====================================================
+// SCREEN
+// =====================================================
 
-constexpr int16_t ScreenWidth  = SCREEN_WIDTH;
-constexpr int16_t ScreenHeight = SCREEN_HEIGHT;
+constexpr int16_t ScreenWidth  = 128;
+constexpr int16_t ScreenHeight = 64;
 
-// ----------------------------------------------------------
-// Safe Area
-// ----------------------------------------------------------
+// =====================================================
+// TOP BAR
+// =====================================================
 
-constexpr int16_t MarginLeft   = 4;
-constexpr int16_t MarginRight  = 4;
-constexpr int16_t MarginTop    = 2;
-constexpr int16_t MarginBottom = 2;
+constexpr int16_t TopBarHeight = 14;
 
-// ----------------------------------------------------------
-// Status Bar
-// ----------------------------------------------------------
+// =====================================================
+// STATUS ICON
+// =====================================================
 
-constexpr int16_t StatusBarHeight = STATUS_BAR_HEIGHT;
+constexpr int16_t StatusMargin = 2;
 
-constexpr int16_t StatusIconY = 2;
-constexpr int16_t BatteryX = 108;
+constexpr int16_t GPSX = 2;
+constexpr int16_t GPSY = 2;
+
+constexpr int16_t BLEX = 16;
+constexpr int16_t BLEY = 2;
+
+constexpr int16_t BatteryX = 110;
 constexpr int16_t BatteryY = 2;
 
-constexpr int16_t BLEIconX = 4;
-constexpr int16_t BLEIconY = 2;
+constexpr int16_t ETAX = 72;
+constexpr int16_t ETAY = 2;
 
-constexpr int16_t GPSIconX = 18;
-constexpr int16_t GPSIconY = 2;
+// =====================================================
+// TURN ICON
+// =====================================================
 
-// ----------------------------------------------------------
-// Main Content
-// ----------------------------------------------------------
-
-constexpr int16_t ContentTop =
-    StatusBarHeight + 2;
-
-constexpr int16_t ContentBottom =
-    ScreenHeight - MarginBottom;
-
-// ----------------------------------------------------------
-// Navigation Screen
-// ----------------------------------------------------------
+constexpr int16_t TurnIconSize = 32;
 
 constexpr int16_t TurnIconX = 2;
+
 constexpr int16_t TurnIconY = 18;
 
-constexpr int16_t TurnIconSize = TURN_ICON_SIZE;
+// =====================================================
+// DISTANCE
+// =====================================================
 
-constexpr int16_t DistanceX = 40;
-constexpr int16_t DistanceY = 18;
+constexpr int16_t DistanceX = 44;
 
-constexpr int16_t RoadNameX = 40;
-constexpr int16_t RoadNameY = 40;
+constexpr int16_t DistanceY = 24;
 
-constexpr int16_t FooterY = 56;
+// =====================================================
+// ROAD
+// =====================================================
 
-// ----------------------------------------------------------
-// Waiting Screen
-// ----------------------------------------------------------
+constexpr int16_t RoadX = 2;
 
-constexpr int16_t WaitingIconY = 14;
-constexpr int16_t WaitingTextY = 48;
+constexpr int16_t RoadY = 54;
 
-// ----------------------------------------------------------
-// Boot Screen
-// ----------------------------------------------------------
+// =====================================================
+// SPEED
+// =====================================================
 
-constexpr int16_t LogoY = 8;
-constexpr int16_t VersionY = 52;
+constexpr int16_t SpeedX = 2;
 
-// ----------------------------------------------------------
-// Idle Screen
-// ----------------------------------------------------------
+constexpr int16_t SpeedY = 0;
 
-constexpr int16_t ClockY = 18;
-constexpr int16_t IdleTextY = 46;
-
-// ----------------------------------------------------------
-// Font Scale
-// ----------------------------------------------------------
-
-constexpr uint8_t FontSmall  = 1;
-constexpr uint8_t FontNormal = 1;
-constexpr uint8_t FontLarge  = 2;
-constexpr uint8_t FontXL     = 3;
-
-// ----------------------------------------------------------
-// Animation
-// ----------------------------------------------------------
-
-constexpr uint16_t SplashDuration = 1200;
-constexpr uint16_t FadeStepMs     = 16;
-constexpr uint16_t BlinkPeriodMs  = 500;
-
-// ----------------------------------------------------------
-// Helpers
-// ----------------------------------------------------------
-
-inline constexpr int16_t centerX(int16_t width)
-{
-    return (ScreenWidth - width) / 2;
 }
-
-inline constexpr int16_t centerY(int16_t height)
-{
-    return (ScreenHeight - height) / 2;
-}
-
-inline constexpr int16_t contentWidth()
-{
-    return ScreenWidth - MarginLeft - MarginRight;
-}
-
-inline constexpr int16_t contentHeight()
-{
-    return ScreenHeight
-           - StatusBarHeight
-           - MarginBottom;
-}
-
-} // namespace Layout
 
 #endif
