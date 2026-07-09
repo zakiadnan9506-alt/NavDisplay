@@ -1,30 +1,17 @@
-/**************************************************************************
- *
- * NavDisplay Framework v1.0
- *
- * File : navigation.cpp
- *
- **************************************************************************/
-
 #include "navigation.h"
 
-//
-// ==========================================================
-// INITIALIZATION
-// ==========================================================
-//
+namespace NavDisplay
+{
+
+// ============================================================================
+// Lifecycle
+// ============================================================================
 
 void navigationBegin()
 {
     navigationReset();
     systemStatus.navigationReady = true;
 }
-
-//
-// ==========================================================
-// UPDATE
-// ==========================================================
-//
 
 void navigationUpdate()
 {
@@ -33,46 +20,37 @@ void navigationUpdate()
         return;
     }
 
-    if (navData.active)
+    if (!navData.active)
     {
-        const uint32_t elapsed = millis() - navData.lastUpdate;
+        return;
+    }
 
-        if (elapsed >= GPS_TIMEOUT_MS)
-        {
-            navigationReset();
-        }
+    const uint32_t now = millis();
+
+    if ((now - navData.lastUpdate) >= GPS_TIMEOUT_MS)
+    {
+        navigationReset();
     }
 }
-
-//
-// ==========================================================
-// RESET
-// ==========================================================
-//
 
 void navigationReset()
 {
     navData.reset();
-
     navigationTouch();
 }
 
-//
-// ==========================================================
-// INTERNAL
-// ==========================================================
-//
+// ============================================================================
+// Internal
+// ============================================================================
 
 void navigationTouch()
 {
     navData.lastUpdate = millis();
 }
 
-//
-// ==========================================================
-// SETTERS
-// ==========================================================
-//
+// ============================================================================
+// Setters
+// ============================================================================
 
 void navigationSetActive(bool active)
 {
@@ -122,11 +100,9 @@ void navigationSetTurn(TurnType turn)
     navigationTouch();
 }
 
-//
-// ==========================================================
-// GETTERS
-// ==========================================================
-//
+// ============================================================================
+// Getters
+// ============================================================================
 
 bool navigationActive()
 {
@@ -148,6 +124,11 @@ uint32_t navigationDistance()
     return navData.distance;
 }
 
+uint32_t navigationAge()
+{
+    return millis() - navData.lastUpdate;
+}
+
 uint16_t navigationETA()
 {
     return navData.eta;
@@ -162,3 +143,5 @@ TurnType navigationTurn()
 {
     return navData.turn;
 }
+
+} // namespace NavDisplay
